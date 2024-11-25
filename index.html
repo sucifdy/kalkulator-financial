@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Finansial</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Kalkulator Finansial</h1>
+      <p>Hitung tabungan atau investasi Anda dengan mudah!</p>
+    </header>
+
+    <main>
+      <!-- Input Section -->
+      <section class="calculator">
+        <h2>Masukkan Detail</h2>
+        <label for="initial">Tabungan Awal (Rp):</label>
+        <input type="number" id="initial" placeholder="Masukkan nominal awal">
+        
+        <label for="interest">Suku Bunga (% per tahun):</label>
+        <input type="number" id="interest" placeholder="Masukkan suku bunga">
+        
+        <label for="years">Durasi (Tahun):</label>
+        <input type="number" id="years" placeholder="Masukkan durasi (tahun)">
+        
+        <button id="calculate">Hitung</button>
+      </section>
+
+      <!-- Results Section -->
+      <section class="results">
+        <h2>Hasil Perhitungan</h2>
+        <p id="output">Hasil akan muncul di sini</p>
+        <canvas id="chart" width="400" height="200"></canvas>
+      </section>
+    </main>
+
+    <footer>
+      <p>© 2024 Kalkulator Finansial - Dibuat oleh Suci</p>
+    </footer>
+  </div>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- JavaScript -->
+  <script>
+    // Elemen HTML
+    const calculateBtn = document.getElementById('calculate');
+    const initialInput = document.getElementById('initial');
+    const interestInput = document.getElementById('interest');
+    const yearsInput = document.getElementById('years');
+    const output = document.getElementById('output');
+    const ctx = document.getElementById('chart').getContext('2d');
+
+    let chart;
+
+    // Fungsi untuk menghitung tabungan
+    function calculateSavings() {
+      const initial = parseFloat(initialInput.value);
+      const interest = parseFloat(interestInput.value) / 100;
+      const years = parseInt(yearsInput.value);
+
+      if (isNaN(initial) || isNaN(interest) || isNaN(years) || years <= 0) {
+        output.textContent = 'Harap masukkan angka yang valid!';
+        return;
+      }
+
+      let savings = initial;
+      const savingsData = [savings];
+      for (let i = 1; i <= years; i++) {
+        savings += savings * interest;
+        savingsData.push(savings);
+      }
+
+      // Menampilkan hasil
+      output.textContent = `Tabungan akhir setelah ${years} tahun: Rp${savings.toFixed(2)}`;
+
+      // Perbarui grafik
+      updateChart(savingsData);
+    }
+
+    // Fungsi untuk memperbarui grafik
+    function updateChart(data) {
+      if (chart) chart.destroy();
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({ length: data.length }, (_, i) => `Tahun ${i}`),
+          datasets: [{
+            label: 'Perkembangan Tabungan',
+            data: data,
+            borderColor: '#0056b3',
+            borderWidth: 2,
+            fill: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Tahun',
+              },
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Tabungan (Rp)',
+              },
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    }
+
+    // Event Listener untuk tombol
+    calculateBtn.addEventListener('click', calculateSavings);
+  </script>
+</body>
+</html>
